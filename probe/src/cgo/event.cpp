@@ -495,3 +495,4 @@ uint16_t get_kindling_category(sinsp_evt *sEvt)
 		return CAT_OTHER;
 	}
 }
+

@@ -1,5 +1,7 @@
 package model
 
+import "encoding/json"
+
 type Source int32
 
 const (
@@ -118,7 +120,6 @@ var ValueType_value = map[string]int32{
 	"BOOL":    13,
 }
 
-
 // File Descriptor type
 type FDType int32
 
@@ -208,7 +209,32 @@ var L4Proto_value = map[string]int32{
 	"RAW":     4,
 }
 
-func (m *KindlingEvent) String() string {
+func (m *Event) String() string {
 	data, _ := json.Marshal(&m)
 	return string(data)
 }
+
+const (
+	RequestCount         = "request_count"
+	RequestTotalTime     = "request_total_time"
+	ConnectTime          = "connect_time"
+	RequestSentTime      = "request_sent_time"
+	WaitingTtfbTime      = "waiting_ttfb_time"
+	ContentDownloadTime  = "content_download_time"
+	RequestTimeHistogram = "request_time_histogram"
+
+	RequestIo  = "request_io"
+	ResponseIo = "response_io"
+
+	SpanInfo = "KSpanInfo"
+)
+
+const (
+	ProtocolHttp  = "http"
+	ProtocolHttp2 = "http2"
+	ProtocolGrpc  = "grpc"
+	ProtocolDubbo = "dubbo"
+	ProtocolDns   = "dns"
+	ProtocolKafka = "kafka"
+	ProtocolMysql = "mysql"
+)

@@ -1,9 +1,5 @@
 package model
 
-import "encoding/json"
-
-
-
 type Event struct {
 	Source Source
 	// Timestamp in nanoseconds at which the event were collected.
@@ -20,49 +16,48 @@ type Event struct {
 	Ctx Context
 }
 
-func (k *KindlingEvent) Reset() {
+func (k *Event) Reset() {
 	k.Ctx.FdInfo.Num = 0
 	k.Ctx.ThreadInfo.Pid = 0
 }
 
-func (m *KindlingEvent) GetSource() Source {
+func (m *Event) GetSource() Source {
 	if m != nil {
 		return m.Source
 	}
 	return Source_SOURCE_UNKNOWN
 }
 
-func (m *KindlingEvent) GetTimestamp() uint64 {
+func (m *Event) GetTimestamp() uint64 {
 	if m != nil {
 		return m.Timestamp
 	}
 	return 0
 }
 
-func (m *KindlingEvent) GetName() string {
+func (m *Event) GetName() string {
 	if m != nil {
 		return m.Name
 	}
 	return ""
 }
 
-func (m *KindlingEvent) GetCategory() Category {
+func (m *Event) GetCategory() Category {
 	if m != nil {
 		return m.Category
 	}
 	return Category_CAT_NONE
 }
 
-func (m *KindlingEvent) GetUserAttributes() *[8]KeyValue {
+func (m *Event) GetUserAttributes() *[8]KeyValue {
 	return &m.UserAttributes
 }
 
-func (m *KindlingEvent) GetCtx() *Context {
+func (m *Event) GetCtx() *Context {
 	return &m.Ctx
 }
 
-
-func KeyValue struct {
+type KeyValue struct {
 	// Arguments' Name or Attributions' Name.
 	Key string
 	// Type of Value.
@@ -279,4 +274,3 @@ func (m *Fd) GetDestination() uint64 {
 	}
 	return 0
 }
-

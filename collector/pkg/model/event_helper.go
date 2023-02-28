@@ -27,7 +27,7 @@ func getByteOrder() binary.ByteOrder {
 	return binary.BigEndian
 }
 
-func (x *KindlingEvent) GetData() []byte {
+func (x *Event) GetData() []byte {
 	keyValue := x.GetUserAttribute("data")
 	if keyValue != nil {
 		return keyValue.GetValue()
@@ -35,7 +35,7 @@ func (x *KindlingEvent) GetData() []byte {
 	return nil
 }
 
-func (x *KindlingEvent) GetDataLen() int {
+func (x *Event) GetDataLen() int {
 	keyValue := x.GetUserAttribute("data")
 	if keyValue != nil {
 		return len(keyValue.GetValue())
@@ -43,7 +43,7 @@ func (x *KindlingEvent) GetDataLen() int {
 	return 0
 }
 
-func (x *KindlingEvent) GetResVal() int64 {
+func (x *Event) GetResVal() int64 {
 	keyValue := x.GetUserAttribute("res")
 	if keyValue != nil {
 		return int64(byteOrder.Uint64(keyValue.Value))
@@ -51,7 +51,7 @@ func (x *KindlingEvent) GetResVal() int64 {
 	return -1
 }
 
-func (x *KindlingEvent) GetLatency() uint64 {
+func (x *Event) GetLatency() uint64 {
 	keyValue := x.GetUserAttribute("latency")
 	if keyValue != nil {
 		return byteOrder.Uint64(keyValue.Value)
@@ -59,7 +59,7 @@ func (x *KindlingEvent) GetLatency() uint64 {
 	return 0
 }
 
-func (x *KindlingEvent) GetUintUserAttribute(key string) uint64 {
+func (x *Event) GetUintUserAttribute(key string) uint64 {
 	keyValue := x.GetUserAttribute(key)
 	if keyValue != nil {
 		return keyValue.GetUintValue()
@@ -67,7 +67,7 @@ func (x *KindlingEvent) GetUintUserAttribute(key string) uint64 {
 	return 0
 }
 
-func (x *KindlingEvent) GetIntUserAttribute(key string) int64 {
+func (x *Event) GetIntUserAttribute(key string) int64 {
 	keyValue := x.GetUserAttribute(key)
 	if keyValue != nil {
 		return keyValue.GetIntValue()
@@ -75,7 +75,7 @@ func (x *KindlingEvent) GetIntUserAttribute(key string) int64 {
 	return 0
 }
 
-func (x *KindlingEvent) GetFloatUserAttribute(key string) float32 {
+func (x *Event) GetFloatUserAttribute(key string) float32 {
 	keyValue := x.GetUserAttribute(key)
 	if keyValue != nil && keyValue.ValueType == ValueType_FLOAT {
 		return math.Float32frombits(byteOrder.Uint32(keyValue.Value))
@@ -83,7 +83,7 @@ func (x *KindlingEvent) GetFloatUserAttribute(key string) float32 {
 	return 0.0
 }
 
-func (x *KindlingEvent) GetDoubleUserAttribute(key string) float64 {
+func (x *Event) GetDoubleUserAttribute(key string) float64 {
 	keyValue := x.GetUserAttribute(key)
 	if keyValue != nil && keyValue.ValueType == ValueType_FLOAT {
 		return math.Float64frombits(byteOrder.Uint64(keyValue.Value))
@@ -91,7 +91,7 @@ func (x *KindlingEvent) GetDoubleUserAttribute(key string) float64 {
 	return 0.0
 }
 
-func (x *KindlingEvent) GetStringUserAttribute(key string) string {
+func (x *Event) GetStringUserAttribute(key string) string {
 	keyValue := x.GetUserAttribute(key)
 	if keyValue != nil {
 		return string(keyValue.GetValue())
@@ -99,11 +99,11 @@ func (x *KindlingEvent) GetStringUserAttribute(key string) string {
 	return ""
 }
 
-func (x *KindlingEvent) GetStartTime() uint64 {
+func (x *Event) GetStartTime() uint64 {
 	return x.Timestamp - x.GetLatency()
 }
 
-func (x *KindlingEvent) GetUserAttribute(key string) *KeyValue {
+func (x *Event) GetUserAttribute(key string) *KeyValue {
 	if x.ParamsNumber == 0 {
 		return nil
 	}
@@ -118,7 +118,7 @@ func (x *KindlingEvent) GetUserAttribute(key string) *KeyValue {
 	return nil
 }
 
-func (x *KindlingEvent) GetPid() uint32 {
+func (x *Event) GetPid() uint32 {
 	ctx := x.GetCtx()
 	if ctx == nil {
 		return 0
@@ -130,7 +130,7 @@ func (x *KindlingEvent) GetPid() uint32 {
 	return threadInfo.Pid
 }
 
-func (x *KindlingEvent) GetComm() string {
+func (x *Event) GetComm() string {
 	ctx := x.GetCtx()
 	if ctx == nil {
 		return ""
@@ -142,7 +142,7 @@ func (x *KindlingEvent) GetComm() string {
 	return threadInfo.Comm
 }
 
-func (x *KindlingEvent) GetContainerId() string {
+func (x *Event) GetContainerId() string {
 	ctx := x.GetCtx()
 	if ctx == nil {
 		return ""
@@ -154,7 +154,7 @@ func (x *KindlingEvent) GetContainerId() string {
 	return threadInfo.ContainerId
 }
 
-func (x *KindlingEvent) GetFd() int32 {
+func (x *Event) GetFd() int32 {
 	ctx := x.GetCtx()
 	if ctx == nil {
 		return 0
@@ -166,7 +166,7 @@ func (x *KindlingEvent) GetFd() int32 {
 	return fdInfo.Num
 }
 
-func (x *KindlingEvent) GetSip() string {
+func (x *Event) GetSip() string {
 	ctx := x.GetCtx()
 	if ctx == nil {
 		return ""
@@ -179,7 +179,7 @@ func (x *KindlingEvent) GetSip() string {
 	return IPLong2String(fdInfo.Sip[0])
 }
 
-func (x *KindlingEvent) GetDip() string {
+func (x *Event) GetDip() string {
 	ctx := x.GetCtx()
 	if ctx == nil {
 		return ""
@@ -206,7 +206,7 @@ func IPLong2String(i uint32) string {
 	return ip.String()
 }
 
-func (x *KindlingEvent) GetSport() uint32 {
+func (x *Event) GetSport() uint32 {
 	ctx := x.GetCtx()
 	if ctx == nil {
 		return 0
@@ -218,7 +218,7 @@ func (x *KindlingEvent) GetSport() uint32 {
 	return fdInfo.Sport
 }
 
-func (x *KindlingEvent) GetDport() uint32 {
+func (x *Event) GetDport() uint32 {
 	ctx := x.GetCtx()
 	if ctx == nil {
 		return 0
@@ -230,14 +230,14 @@ func (x *KindlingEvent) GetDport() uint32 {
 	return fdInfo.Dport
 }
 
-func (x *KindlingEvent) IsUdp() uint32 {
+func (x *Event) IsUdp() uint32 {
 	if x.GetCtx().GetFdInfo().GetProtocol() == L4Proto_UDP {
 		return 1
 	}
 	return 0
 }
 
-func (x *KindlingEvent) IsTcp() bool {
+func (x *Event) IsTcp() bool {
 	context := x.GetCtx()
 	if context == nil {
 		return false
@@ -249,11 +249,11 @@ func (x *KindlingEvent) IsTcp() bool {
 	return fd.GetProtocol() == L4Proto_TCP
 }
 
-func (x *KindlingEvent) IsConnect() bool {
+func (x *Event) IsConnect() bool {
 	return x.Name == "connect"
 }
 
-func (x *KindlingEvent) IsRequest() (bool, error) {
+func (x *Event) IsRequest() (bool, error) {
 	if x.Category == Category_CAT_NET {
 		switch x.Name {
 		case "read", "recvfrom", "recvmsg", "readv", "pread", "preadv":
@@ -267,7 +267,7 @@ func (x *KindlingEvent) IsRequest() (bool, error) {
 	return false, ErrMessageNotSocket
 }
 
-func (x *KindlingEvent) isRequest(in bool) (bool, error) {
+func (x *Event) isRequest(in bool) (bool, error) {
 	ctx := x.GetCtx()
 	if ctx == nil {
 		return false, ErrMessageNotSocket
@@ -279,7 +279,7 @@ func (x *KindlingEvent) isRequest(in bool) (bool, error) {
 	return fdInfo.Role == in, nil
 }
 
-func (x *KindlingEvent) GetSocketKey() uint64 {
+func (x *Event) GetSocketKey() uint64 {
 	return uint64(int64(x.Ctx.ThreadInfo.Pid)<<32) | uint64(x.Ctx.FdInfo.Num)&LOWER32
 }
 
