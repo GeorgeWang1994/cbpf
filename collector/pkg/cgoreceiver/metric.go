@@ -24,8 +24,8 @@ func newSelfMetrics(meterProvider metric.MeterProvider, receiver *CgoReceiver) {
 		meter.NewInt64CounterObserver(eventReceivedMetric,
 			func(ctx context.Context, result metric.Int64ObserverResult) {
 				for name, value := range receiver.stats.getStats() {
-					result.Observe(value, attribute.String("name", name))
-				}
+					result.Observe(value, attribute.String("name", name))|
+					}
 			})
 		meter.NewInt64GaugeObserver(channelSizeMetric,
 			func(ctx context.Context, result metric.Int64ObserverResult) {

@@ -1,5 +1,13 @@
 package cgoreceiver
 
+/*
+#cgo LDFLAGS: -L ./ -lkindling  -lstdc++ -ldl
+#cgo CFLAGS: -I .
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdio.h>
+#include "cgo_func.h"
+*/
 import "C"
 import (
 	"sync"
@@ -23,14 +31,15 @@ type CKindlingEventForGo C.struct_kindling_event_t_for_go
 type CgoReceiver struct {
 	cfg             *Config
 	analyzerManager *analyzerpackage.Manager
-	shutdownWG      sync.WaitGroup
+	shutdownWG      sync.WaitGroup // 停止标志
 	telemetry       *component.TelemetryTools
-	eventChannel    chan *model.KindlingEvent
+	eventChannel    chan *model.KindlingEvent // 事件channel
 	stopCh          chan interface{}
 	stats           eventCounter
 }
 
 func NewCgoReceiver(config interface{}, telemetry *component.TelemetryTools, analyzerManager *analyzerpackage.Manager) receiver.Receiver {
+	// 创建接收器
 	cfg, ok := config.(*Config)
 	if !ok {
 		telemetry.Logger.Sugar().Panicf("Cannot convert [%s] config", Cgo)

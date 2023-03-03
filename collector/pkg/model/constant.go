@@ -2,6 +2,25 @@ package model
 
 import "encoding/json"
 
+type ValueType int32
+
+const (
+	ValueType_NONE    ValueType = 0
+	ValueType_INT8    ValueType = 1
+	ValueType_INT16   ValueType = 2
+	ValueType_INT32   ValueType = 3
+	ValueType_INT64   ValueType = 4
+	ValueType_UINT8   ValueType = 5
+	ValueType_UINT16  ValueType = 6
+	ValueType_UINT32  ValueType = 7
+	ValueType_UINT64  ValueType = 8
+	ValueType_CHARBUF ValueType = 9
+	ValueType_BYTEBUF ValueType = 10
+	ValueType_FLOAT   ValueType = 11
+	ValueType_DOUBLE  ValueType = 12
+	ValueType_BOOL    ValueType = 13
+)
+
 type Source int32
 
 const (
