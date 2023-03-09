@@ -10,14 +10,14 @@ package cgoreceiver
 */
 import "C"
 import (
+	"collector/pkg"
+	"collector/pkg/analyzer"
+	"collector/pkg/model"
 	"sync"
 	"time"
 	"unsafe"
 
 	"github.com/Kindling-project/kindling/collector/pkg/component"
-	analyzerpackage "github.com/Kindling-project/kindling/collector/pkg/component/analyzer"
-	"github.com/Kindling-project/kindling/collector/pkg/component/receiver"
-	"github.com/Kindling-project/kindling/collector/pkg/model"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -30,41 +30,44 @@ type CKindlingEventForGo C.struct_kindling_event_t_for_go
 
 type CgoReceiver struct {
 	cfg             *Config
-	analyzerManager *analyzerpackage.Manager
+	analyzerManager *analyzer.Manager
 	shutdownWG      sync.WaitGroup // 停止标志
 	telemetry       *component.TelemetryTools
-	eventChannel    chan *model.KindlingEvent // 事件channel
+	eventChannel    chan *model.Event // 事件channel
 	stopCh          chan interface{}
 	stats           eventCounter
 }
 
-func NewCgoReceiver(config interface{}, telemetry *component.TelemetryTools, analyzerManager *analyzerpackage.Manager) receiver.Receiver {
+func NewCgoReceiver(config interface{}, telemetry *component.TelemetryTools, analyzerManager *analyzer.Manager) pkg.Receiver {
 	// 创建接收器
 	cfg, ok := config.(*Config)
 	if !ok {
-		telemetry.Logger.Sugar().Panicf("Cannot convert [%s] config", Cgo)
+		telemetry.Logger.Panicf("Cannot convert [%s] config", Cgo)
 	}
 	cgoReceiver := &CgoReceiver{
 		cfg:             cfg,
 		analyzerManager: analyzerManager,
 		telemetry:       telemetry,
-		eventChannel:    make(chan *model.KindlingEvent, 3e5),
+		eventChannel:    make(chan *model.Event, 3e5),
 		stopCh:          make(chan interface{}, 1),
 	}
 	cgoReceiver.stats = newDynamicStats(cfg.SubscribeInfo)
-	newSelfMetrics(telemetry.MeterProvider, cgoReceiver)
+	//newSelfMetrics(telemetry.MeterProvider, cgoReceiver)
 	return cgoReceiver
 }
 
 // 开始接收事件
 func (r *CgoReceiver) Start() error {
 	r.telemetry.Logger.Info("Start CgoReceiver")
+	// 调用C语言中的runForGo，初始化probe
 	C.runForGo()
 	// 等待几s才开始订阅事件
 	time.Sleep(2 * time.Second)
+	// 订阅事件
 	r.subEvent()
 	// Wait for the C routine running
 	time.Sleep(2 * time.Second)
+	// 启动协程接收事件
 	go r.consumeEvents()
 	go r.startGetEvent()
 	return nil
@@ -116,8 +119,9 @@ func (r *CgoReceiver) Shutdown() error {
 	return nil
 }
 
-func convertEvent(cgoEvent *CKindlingEventForGo) *model.KindlingEvent {
-	ev := new(model.KindlingEvent)
+// 将C中获取到的事件转化成Go中的事件
+func convertEvent(cgoEvent *CKindlingEventForGo) *model.Event {
+	ev := new(model.Event)
 	ev.Timestamp = uint64(cgoEvent.timestamp)
 	ev.Name = C.GoString(cgoEvent.name)
 	ev.Category = model.Category(cgoEvent.category)
@@ -159,17 +163,20 @@ func If(condition bool, trueVal, falseVal interface{}) interface{} {
 	return falseVal
 }
 
-func (r *CgoReceiver) sendToNextConsumer(evt *model.KindlingEvent) error {
+// 发送给下个消费者
+func (r *CgoReceiver) sendToNextConsumer(evt *model.Event) error {
 	if ce := r.telemetry.Logger.Check(zapcore.DebugLevel, "Receive Event"); ce != nil {
 		ce.Write(
 			zap.String("event", evt.String()),
 		)
 	}
+	// 根据事件名称获取到对应的消费者
 	analyzers := r.analyzerManager.GetConsumableAnalyzers(evt.Name)
 	if analyzers == nil || len(analyzers) == 0 {
 		r.telemetry.Logger.Info("analyzer not found for event ", zap.String("eventName", evt.Name))
 		return nil
 	}
+	// 遍历所有的分析器，并且调用分析器的消费事件函数
 	for _, analyzer := range analyzers {
 		err := analyzer.ConsumeEvent(evt)
 		if err != nil {
@@ -179,6 +186,7 @@ func (r *CgoReceiver) sendToNextConsumer(evt *model.KindlingEvent) error {
 	return nil
 }
 
+// 订阅事件
 func (r *CgoReceiver) subEvent() {
 	for _, value := range r.cfg.SubscribeInfo {
 		C.subEventForGo(C.CString(value.Name), C.CString(value.Category))

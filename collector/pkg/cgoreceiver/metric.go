@@ -1,14 +1,11 @@
 package cgoreceiver
 
 import (
-	"context"
-	"github.com/Kindling-project/kindling/collector/pkg/model/constnames"
 	"strings"
 	"sync"
 	"sync/atomic"
 
-	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/metric"
+	"github.com/Kindling-project/kindling/collector/pkg/model/constnames"
 )
 
 var once sync.Once
@@ -18,21 +15,14 @@ const (
 	channelSizeMetric   = "kindling_telemetry_cgoreceiver_channel_size"
 )
 
-func newSelfMetrics(meterProvider metric.MeterProvider, receiver *CgoReceiver) {
-	once.Do(func() {
-		meter := metric.Must(meterProvider.Meter("kindling"))
-		meter.NewInt64CounterObserver(eventReceivedMetric,
-			func(ctx context.Context, result metric.Int64ObserverResult) {
-				for name, value := range receiver.stats.getStats() {
-					result.Observe(value, attribute.String("name", name))
-				}
-			})
-		meter.NewInt64GaugeObserver(channelSizeMetric,
-			func(ctx context.Context, result metric.Int64ObserverResult) {
-				result.Observe(int64(len(receiver.eventChannel)))
-			})
-	})
-}
+// 注册统计指标
+//func newSelfMetrics(meterProvider metric.MeterProvider, receiver *CgoReceiver) {
+//	once.Do(func() {
+//		meter := meterProvider.Meter("kindling")
+//		gcCount, _ := meter.Int64ObservableCounter(eventReceivedMetric)
+//		gcCauge, _ := meter.Int64ObservableGauge(channelSizeMetric)
+//	})
+//}
 
 type eventCounter interface {
 	add(name string, value int64)
