@@ -1,12 +1,12 @@
 package internal
 
 import (
+	"collector/pkg"
+	"collector/pkg/analyzer"
+	"collector/pkg/consumer"
 	"github.com/Kindling-project/kindling/collector/pkg/component"
-	"github.com/Kindling-project/kindling/collector/pkg/component/analyzer"
-	"github.com/Kindling-project/kindling/collector/pkg/component/consumer"
 	"github.com/Kindling-project/kindling/collector/pkg/component/consumer/exporter"
 	"github.com/Kindling-project/kindling/collector/pkg/component/consumer/processor"
-	"github.com/Kindling-project/kindling/collector/pkg/component/receiver"
 	"github.com/spf13/viper"
 )
 
@@ -27,7 +27,7 @@ type ComponentsFactory struct {
 }
 
 // 接收函数
-type NewReceiverFunc func(cfg interface{}, telemetry *component.TelemetryTools, analyzerManager *analyzer.Manager) receiver.Receiver
+type NewReceiverFunc func(cfg interface{}, telemetry *component.TelemetryTools, analyzerManager *analyzer.Manager) pkg.Receiver
 
 // 分析函数
 type NewAnalyzerFunc func(cfg interface{}, telemetry *component.TelemetryTools, consumers []consumer.Consumer) analyzer.Analyzer

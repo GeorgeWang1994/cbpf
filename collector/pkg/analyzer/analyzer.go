@@ -43,6 +43,7 @@ func NewManager(analyzers ...Analyzer) (*Manager, error) {
 	}
 	analyzerMap := make(map[string][]Analyzer)
 	consumeAllEventsAnalyzers := make([]Analyzer, 0)
+	// 实现事件名字和分析器的映射
 	for _, analyzer := range analyzers {
 		consumableEvents := analyzer.ConsumableEvents()
 		for _, event := range consumableEvents {

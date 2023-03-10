@@ -52,6 +52,7 @@ func NewCgoReceiver(config interface{}, telemetry *component.TelemetryTools, ana
 		stopCh:          make(chan interface{}, 1),
 	}
 	cgoReceiver.stats = newDynamicStats(cfg.SubscribeInfo)
+	// 监控接受事件的指标
 	//newSelfMetrics(telemetry.MeterProvider, cgoReceiver)
 	return cgoReceiver
 }
@@ -177,8 +178,8 @@ func (r *CgoReceiver) sendToNextConsumer(evt *model.Event) error {
 		return nil
 	}
 	// 遍历所有的分析器，并且调用分析器的消费事件函数
-	for _, analyzer := range analyzers {
-		err := analyzer.ConsumeEvent(evt)
+	for _, an := range analyzers {
+		err := an.ConsumeEvent(evt)
 		if err != nil {
 			r.telemetry.Logger.Warn("Error sending event to next consumer: ", zap.Error(err))
 		}
