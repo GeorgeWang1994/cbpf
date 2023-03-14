@@ -5,6 +5,7 @@ import (
 	"collector/pkg/analyzer"
 	"collector/pkg/analyzer/tcp_analyzer"
 	"collector/pkg/cgoreceiver"
+	"collector/pkg/consumer"
 	"flag"
 	"fmt"
 	"github.com/Kindling-project/kindling/collector/pkg/component"
@@ -110,17 +111,17 @@ func (a *Application) buildPipeline() error {
 	// 2. 4层TCP检测分析器
 	//aggregateProcessorForTcp := aggregateProcessorFactory.NewFunc(aggregateProcessorFactory.Config, a.telemetry.Telemetry, otelExporter)
 	//k8sMetadataProcessor2 := k8sProcessorFactory.NewFunc(k8sProcessorFactory.Config, a.telemetry.Telemetry, aggregateProcessorForTcp)
-	//tcpAnalyzerFactory := a.componentsFactory.Analyzers[tcpmetricanalyzer.TcpMetric.String()]
-	//tcpAnalyzer := tcpAnalyzerFactory.NewFunc(tcpAnalyzerFactory.Config, a.telemetry.Telemetry, []consumer.Consumer{k8sMetadataProcessor2})
+	tcpAnalyzerFactory := a.componentsFactory.Analyzers[tcpmetricanalyzer.TcpMetric.String()]
+	tcpAnalyzer := tcpAnalyzerFactory.NewFunc(tcpAnalyzerFactory.Config, a.telemetry.Telemetry, []consumer.Consumer{k8sMetadataProcessor2})
 	//tcpConnectAnalyzerFactory := a.componentsFactory.Analyzers[tcpconnectanalyzer.Type.String()]
 	//tcpConnectAnalyzer := tcpConnectAnalyzerFactory.NewFunc(tcpConnectAnalyzerFactory.Config, a.telemetry.Telemetry, []consumer.Consumer{k8sMetadataProcessor})
 
 	// 初始化分析管理器 Initialize receiver packaged with multiple analyzers
-	//analyzerManager, err := analyzer.NewManager(networkAnalyzer, tcpAnalyzer, tcpConnectAnalyzer)
-	//if err != nil {
-	//	return fmt.Errorf("error happened while creating analyzer manager: %w", err)
-	//}
-	//a.analyzerManager = analyzerManager
+	analyzerManager, err := analyzer.NewManager(tcpAnalyzer)
+	if err != nil {
+		return fmt.Errorf("error happened while creating analyzer manager: %w", err)
+	}
+	a.analyzerManager = analyzerManager
 
 	cgoReceiverFactory := a.componentsFactory.Receivers[cgoreceiver.Cgo]
 	cgoReceiver := cgoReceiverFactory.NewFunc(cgoReceiverFactory.Config, nil, nil)
