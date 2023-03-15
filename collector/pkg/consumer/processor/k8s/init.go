@@ -1,7 +1,7 @@
 package k8s
 
 import (
-	"collector/pkg/consumer/k8s/watch"
+	watch2 "collector/pkg/consumer/processor/k8s/watch"
 	"fmt"
 	k8s "k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -66,13 +66,13 @@ func InitK8sHandler(options ...Option) error {
 			retErr = fmt.Errorf("cannot connect to kubernetes: %w", err)
 			return
 		}
-		go watch.NodeWatch(clientSet)
+		go watch2.NodeWatch(clientSet)
 		time.Sleep(1 * time.Second)
-		go RsWatch(clientSet)
+		go watch2.RsWatch(clientSet)
 		time.Sleep(1 * time.Second)
-		go ServiceWatch(clientSet)
+		go watch2.ServiceWatch(clientSet)
 		time.Sleep(1 * time.Second)
-		go PodWatch(clientSet, k8sConfig.GraceDeletePeriod)
+		go watch2.PodWatch(clientSet, k8sConfig.GraceDeletePeriod)
 		time.Sleep(1 * time.Second)
 		KubeClient = clientSet
 	})

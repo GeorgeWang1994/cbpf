@@ -6,10 +6,10 @@ import (
 	"collector/pkg/analyzer/tcp_analyzer"
 	"collector/pkg/cgoreceiver"
 	"collector/pkg/consumer"
+	"collector/pkg/consumer/processor/k8s"
 	"flag"
 	"fmt"
 	"github.com/Kindling-project/kindling/collector/pkg/component"
-	"github.com/Kindling-project/kindling/collector/pkg/component/analyzer/tcpmetricanalyzer"
 	"github.com/spf13/viper"
 	"go.uber.org/multierr"
 )
@@ -64,11 +64,11 @@ func (a *Application) registerFactory() {
 	//a.componentsFactory.RegisterExporter(otelexporter.Otel, otelexporter.NewExporter, &otelexporter.Config{})
 	//a.componentsFactory.RegisterExporter(logexporter.Type, logexporter.New, &logexporter.Config{})
 	//
-	//a.componentsFactory.RegisterProcessor(k8sprocessor.K8sMetadata, k8sprocessor.NewKubernetesProcessor, &k8sprocessor.DefaultConfig)
+	a.componentsFactory.RegisterProcessor(k8s.K8sMetadata, k8s.NewKubernetesProcessor, &k8s.DefaultConfig)
 	//a.componentsFactory.RegisterProcessor(aggregateprocessor.Type, aggregateprocessor.New, aggregateprocessor.NewDefaultConfig())
 	//
 	//a.componentsFactory.RegisterAnalyzer(network.Network.String(), network.NewNetworkAnalyzer, &network.Config{})
-	a.componentsFactory.RegisterAnalyzer(tcpmetricanalyzer.TcpMetric.String(), tcp_analyzer.NewTcpMetricAnalyzer, &tcpmetricanalyzer.Config{})
+	a.componentsFactory.RegisterAnalyzer(tcp_analyzer.TcpMetric.String(), tcp_analyzer.NewTcpMetricAnalyzer, nil)
 	//a.componentsFactory.RegisterAnalyzer(loganalyzer.Type.String(), loganalyzer.New, &loganalyzer.Config{})
 	//a.componentsFactory.RegisterAnalyzer(tcpconnectanalyzer.Type.String(), tcpconnectanalyzer.New, tcpconnectanalyzer.NewDefaultConfig())
 }
@@ -99,7 +99,7 @@ func (a *Application) buildPipeline() error {
 	//aggregateProcessorFactory := a.componentsFactory.Processors[aggregateprocessor.Type]
 	//aggregateProcessor := aggregateProcessorFactory.NewFunc(aggregateProcessorFactory.Config, a.telemetry.Telemetry, otelExporter)
 	// 2. k8s处理器 Kubernetes metadata processor
-	//k8sProcessorFactory := a.componentsFactory.Processors[k8sprocessor.K8sMetadata]
+	k8sProcessorFactory := a.componentsFactory.Processors[k8s.K8sMetadata]
 	//k8sMetadataProcessor := k8sProcessorFactory.NewFunc(k8sProcessorFactory.Config, a.telemetry.Telemetry, aggregateProcessor)
 
 	// 初始化所有的分析器
@@ -110,9 +110,9 @@ func (a *Application) buildPipeline() error {
 	//networkAnalyzer := networkAnalyzerFactory.NewFunc(networkAnalyzerFactory.Config, a.telemetry.Telemetry, []consumer.Consumer{k8sMetadataProcessor})
 	// 2. 4层TCP检测分析器
 	//aggregateProcessorForTcp := aggregateProcessorFactory.NewFunc(aggregateProcessorFactory.Config, a.telemetry.Telemetry, otelExporter)
-	//k8sMetadataProcessor2 := k8sProcessorFactory.NewFunc(k8sProcessorFactory.Config, a.telemetry.Telemetry, aggregateProcessorForTcp)
-	tcpAnalyzerFactory := a.componentsFactory.Analyzers[tcpmetricanalyzer.TcpMetric.String()]
-	tcpAnalyzer := tcpAnalyzerFactory.NewFunc(tcpAnalyzerFactory.Config, a.telemetry.Telemetry, []consumer.Consumer{k8sMetadataProcessor2})
+	k8sMetadataProcessor2 := k8sProcessorFactory.NewFunc(k8sProcessorFactory.Config, a.telemetry.GetGlobalTelemetryTools(), nil)
+	tcpAnalyzerFactory := a.componentsFactory.Analyzers[tcp_analyzer.TcpMetric.String()]
+	tcpAnalyzer := tcpAnalyzerFactory.NewFunc(tcpAnalyzerFactory.Config, a.telemetry.GetGlobalTelemetryTools(), []consumer.Consumer{k8sMetadataProcessor2})
 	//tcpConnectAnalyzerFactory := a.componentsFactory.Analyzers[tcpconnectanalyzer.Type.String()]
 	//tcpConnectAnalyzer := tcpConnectAnalyzerFactory.NewFunc(tcpConnectAnalyzerFactory.Config, a.telemetry.Telemetry, []consumer.Consumer{k8sMetadataProcessor})
 

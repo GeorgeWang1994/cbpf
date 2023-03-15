@@ -50,10 +50,20 @@ type K8sServiceInfo struct {
 	// k8s中的namespace
 	Namespace string
 	// ？
-	isNodePort bool
+	IsNodePort bool
 	// ？
 	Selector map[string]string
 	// TODO: How to delete the workload info when it is deleted?
 	WorkloadKind string
 	WorkloadName string
+}
+
+func (s *K8sServiceInfo) EmptySelf() {
+	s.Ip = ""
+	s.ServiceName = ""
+	s.Namespace = ""
+	s.IsNodePort = false
+	s.Selector = nil
+	s.WorkloadKind = ""
+	s.WorkloadName = ""
 }

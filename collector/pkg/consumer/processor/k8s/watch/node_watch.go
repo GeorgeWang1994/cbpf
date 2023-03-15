@@ -36,7 +36,7 @@ func (n *nodeMap) add(info *NodeInfo) {
 	n.mutex.Unlock()
 }
 
-func (n *nodeMap) getNodeName(ip string) (string, bool) {
+func (n *nodeMap) GetNodeName(ip string) (string, bool) {
 	n.mutex.RLock()
 	ret, ok := n.Info[ip]
 	n.mutex.RUnlock()
@@ -62,7 +62,8 @@ func (n *nodeMap) delete(name string) {
 	n.mutex.Unlock()
 }
 
-var globalNodeInfo = newNodeMap()
+// 全局节点缓存
+var GlobalNodeInfo = newNodeMap()
 
 func NodeWatch(clientSet *kubernetes.Clientset) {
 	stopper := make(chan struct{})
@@ -102,7 +103,7 @@ func AddNode(obj interface{}) {
 			nI.Ip = nodeAddress.Address
 		}
 	}
-	globalNodeInfo.add(nI)
+	GlobalNodeInfo.add(nI)
 }
 
 func UpdateNode(objOld interface{}, objNew interface{}) {
@@ -112,5 +113,5 @@ func UpdateNode(objOld interface{}, objNew interface{}) {
 
 func DeleteNode(obj interface{}) {
 	node := obj.(*corev1.Node)
-	globalNodeInfo.delete(node.Name)
+	GlobalNodeInfo.delete(node.Name)
 }

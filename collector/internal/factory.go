@@ -4,9 +4,9 @@ import (
 	"collector/pkg"
 	"collector/pkg/analyzer"
 	"collector/pkg/consumer"
+	"collector/pkg/consumer/processor"
 	"github.com/Kindling-project/kindling/collector/pkg/component"
 	"github.com/Kindling-project/kindling/collector/pkg/component/consumer/exporter"
-	"github.com/Kindling-project/kindling/collector/pkg/component/consumer/processor"
 	"github.com/spf13/viper"
 )
 
