@@ -135,21 +135,8 @@ func (a *TcpMetricAnalyzer) getTupleLabels(event *model.Event) (*model.Attribute
 	labels.AddStringValue(constlabels.DstIp, dIpString)
 	labels.AddIntValue(constlabels.DstPort, int64(dPortUint))
 
-	//dNatIp, dNatPort := a.findDNatTuple(sIpString, sPortUint, dIpString, dPortUint)
-	//labels.AddStringValue(constlabels.DnatIp, dNatIp)
-	//labels.AddIntValue(constlabels.DnatPort, dNatPort)
 	return labels, nil
 }
-
-//func (a *TcpMetricAnalyzer) findDNatTuple(sIp string, sPort uint64, dIp string, dPort uint64) (string, int64) {
-//	dNat := a.conntracker.GetDNATTupleWithString(sIp, dIp, uint16(sPort), uint16(dPort), 0)
-//	if dNat == nil {
-//		return "", -1
-//	}
-//	dNatIp := dNat.ReplSrcIP.String()
-//	dNatPort := dNat.ReplSrcPort
-//	return dNatIp, int64(dNatPort)
-//}
 
 func (a *TcpMetricAnalyzer) Shutdown() error {
 	return nil

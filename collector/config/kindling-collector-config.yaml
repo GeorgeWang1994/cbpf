@@ -1,5 +1,8 @@
+# 接受者
 receivers:
+  # c/c++程序接受事件
   cgoreceiver:
+    # 订阅的事件类别（包括系统调用syscall和kprobe）
     subscribe:
       - name: syscall_exit-writev
         category: net
@@ -24,6 +27,7 @@ receivers:
       - name: syscall_exit-connect
       - name: kretprobe-tcp_connect
       - name: kprobe-tcp_set_state
+# 分析器
 analyzers:
   mockanalyzer:
     num: 10
@@ -35,6 +39,7 @@ analyzers:
     conntrack_max_state_size: 131072
     conntrack_rate_limit: 500
     proc_root: /proc
+    # 支持的协议分析
     protocol_parser: [ http, mysql, dns, redis, kafka, dubbo ]
     protocol_config:
       - key: "http"
@@ -59,8 +64,8 @@ analyzers:
 processors:
   k8smetadataprocessor:
     kube_auth_type: kubeConfig
-  nodemetricprocessor:
 
+# 暴露数据
 exporters:
   otelexporter:
     metric_aggregation_map:
@@ -89,6 +94,7 @@ exporters:
     stdout:
       collect_period: 15s
 
+# 可观测性
 observability:
   logger:
     console_level: debug # debug,info,warn,error,none
