@@ -4,6 +4,7 @@ import (
 	"collector/pkg"
 	"collector/pkg/analyzer"
 	"collector/pkg/analyzer/tcp_analyzer"
+	"collector/pkg/analyzer/tcp_connect_analyzer"
 	"collector/pkg/cgoreceiver"
 	"collector/pkg/consumer"
 	"collector/pkg/consumer/processor/k8s"
@@ -70,7 +71,7 @@ func (a *Application) registerFactory() {
 	//a.componentsFactory.RegisterAnalyzer(network.Network.String(), network.NewNetworkAnalyzer, &network.Config{})
 	a.componentsFactory.RegisterAnalyzer(tcp_analyzer.TcpMetric.String(), tcp_analyzer.NewTcpMetricAnalyzer, nil)
 	//a.componentsFactory.RegisterAnalyzer(loganalyzer.Type.String(), loganalyzer.New, &loganalyzer.Config{})
-	//a.componentsFactory.RegisterAnalyzer(tcpconnectanalyzer.Type.String(), tcpconnectanalyzer.New, tcpconnectanalyzer.NewDefaultConfig())
+	a.componentsFactory.RegisterAnalyzer(tcp_connect_analyzer.TcpConnectMetric.String(), tcp_connect_analyzer.New, tcp_connect_analyzer.NewDefaultConfig())
 }
 
 func (a *Application) readInConfig(path string) error {
@@ -100,7 +101,7 @@ func (a *Application) buildPipeline() error {
 	//aggregateProcessor := aggregateProcessorFactory.NewFunc(aggregateProcessorFactory.Config, a.telemetry.Telemetry, otelExporter)
 	// 2. k8s处理器 Kubernetes metadata processor
 	k8sProcessorFactory := a.componentsFactory.Processors[k8s.K8sMetadata]
-	//k8sMetadataProcessor := k8sProcessorFactory.NewFunc(k8sProcessorFactory.Config, a.telemetry.Telemetry, aggregateProcessor)
+	k8sMetadataProcessor := k8sProcessorFactory.NewFunc(k8sProcessorFactory.Config, a.telemetry.GetGlobalTelemetryTools(), nil)
 
 	// 初始化所有的分析器
 	// 1. 正常的网络请求分析器
@@ -110,14 +111,13 @@ func (a *Application) buildPipeline() error {
 	//networkAnalyzer := networkAnalyzerFactory.NewFunc(networkAnalyzerFactory.Config, a.telemetry.Telemetry, []consumer.Consumer{k8sMetadataProcessor})
 	// 2. 4层TCP检测分析器
 	//aggregateProcessorForTcp := aggregateProcessorFactory.NewFunc(aggregateProcessorFactory.Config, a.telemetry.Telemetry, otelExporter)
-	k8sMetadataProcessor2 := k8sProcessorFactory.NewFunc(k8sProcessorFactory.Config, a.telemetry.GetGlobalTelemetryTools(), nil)
 	tcpAnalyzerFactory := a.componentsFactory.Analyzers[tcp_analyzer.TcpMetric.String()]
-	tcpAnalyzer := tcpAnalyzerFactory.NewFunc(tcpAnalyzerFactory.Config, a.telemetry.GetGlobalTelemetryTools(), []consumer.Consumer{k8sMetadataProcessor2})
-	//tcpConnectAnalyzerFactory := a.componentsFactory.Analyzers[tcpconnectanalyzer.Type.String()]
-	//tcpConnectAnalyzer := tcpConnectAnalyzerFactory.NewFunc(tcpConnectAnalyzerFactory.Config, a.telemetry.Telemetry, []consumer.Consumer{k8sMetadataProcessor})
+	tcpAnalyzer := tcpAnalyzerFactory.NewFunc(tcpAnalyzerFactory.Config, a.telemetry.GetGlobalTelemetryTools(), []consumer.Consumer{k8sMetadataProcessor})
+	tcpConnectAnalyzerFactory := a.componentsFactory.Analyzers[tcp_connect_analyzer.TcpConnectMetric.String()]
+	tcpConnectAnalyzer := tcpConnectAnalyzerFactory.NewFunc(tcpConnectAnalyzerFactory.Config, a.telemetry.GetGlobalTelemetryTools(), []consumer.Consumer{k8sMetadataProcessor})
 
 	// 初始化分析管理器 Initialize receiver packaged with multiple analyzers
-	analyzerManager, err := analyzer.NewManager(tcpAnalyzer)
+	analyzerManager, err := analyzer.NewManager(tcpAnalyzer, tcpConnectAnalyzer)
 	if err != nil {
 		return fmt.Errorf("error happened while creating analyzer manager: %w", err)
 	}

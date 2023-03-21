@@ -304,4 +304,7 @@ const (
 	TcpDropMetricGroupName       = "tcp_drop_metric_group"
 	NodeMetricGroupName          = "node_metric_metric_group"
 	TcpConnectMetricGroupName    = "tcp_connect_metric_group"
+
+	TcpConnectTotalMetric    = "kindling_tcp_connect_total"
+	TcpConnectDurationMetric = "kindling_tcp_connect_duration_nanoseconds_total"
 )
