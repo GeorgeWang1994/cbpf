@@ -1,7 +1,7 @@
 package cgoreceiver
 
 /*
-#cgo LDFLAGS: -L ./ -lkindling  -lstdc++ -ldl
+#cgo LDFLAGS: -L ./ -levent  -lstdc++ -ldl
 #cgo CFLAGS: -I .
 #include <stdlib.h>
 #include <stdint.h>

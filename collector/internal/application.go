@@ -3,6 +3,7 @@ package internal
 import (
 	"collector/pkg"
 	"collector/pkg/analyzer"
+	"collector/pkg/analyzer/network_analyzer"
 	"collector/pkg/analyzer/tcp_analyzer"
 	"collector/pkg/analyzer/tcp_connect_analyzer"
 	"collector/pkg/cgoreceiver"
@@ -63,15 +64,15 @@ func (a *Application) registerFactory() {
 	a.componentsFactory.RegisterReceiver(cgoreceiver.Cgo, cgoreceiver.NewCgoReceiver, &cgoreceiver.Config{})
 
 	//a.componentsFactory.RegisterExporter(otelexporter.Otel, otelexporter.NewExporter, &otelexporter.Config{})
-	//a.componentsFactory.RegisterExporter(logexporter.Type, logexporter.New, &logexporter.Config{})
+	//a.componentsFactory.RegisterExporter(logexporter.Type, logexporter.NewTcpConnectAnalyzer, &logexporter.Config{})
 	//
 	a.componentsFactory.RegisterProcessor(k8s.K8sMetadata, k8s.NewKubernetesProcessor, &k8s.DefaultConfig)
-	//a.componentsFactory.RegisterProcessor(aggregateprocessor.Type, aggregateprocessor.New, aggregateprocessor.NewDefaultConfig())
+	//a.componentsFactory.RegisterProcessor(aggregateprocessor.Type, aggregateprocessor.NewTcpConnectAnalyzer, aggregateprocessor.NewDefaultConfig())
 	//
-	//a.componentsFactory.RegisterAnalyzer(network.Network.String(), network.NewNetworkAnalyzer, &network.Config{})
+	a.componentsFactory.RegisterAnalyzer(network_analyzer.Network.String(), network_analyzer.NewNetworkAnalyzer, &network_analyzer.Config{})
 	a.componentsFactory.RegisterAnalyzer(tcp_analyzer.TcpMetric.String(), tcp_analyzer.NewTcpMetricAnalyzer, nil)
-	//a.componentsFactory.RegisterAnalyzer(loganalyzer.Type.String(), loganalyzer.New, &loganalyzer.Config{})
-	a.componentsFactory.RegisterAnalyzer(tcp_connect_analyzer.TcpConnectMetric.String(), tcp_connect_analyzer.New, tcp_connect_analyzer.NewDefaultConfig())
+	//a.componentsFactory.RegisterAnalyzer(loganalyzer.Type.String(), loganalyzer.NewTcpConnectAnalyzer, &loganalyzer.Config{})
+	a.componentsFactory.RegisterAnalyzer(tcp_connect_analyzer.TcpConnectMetric.String(), tcp_connect_analyzer.NewTcpConnectAnalyzer, tcp_connect_analyzer.NewDefaultConfig())
 }
 
 func (a *Application) readInConfig(path string) error {

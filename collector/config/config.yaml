@@ -40,26 +40,26 @@ analyzers:
     conntrack_rate_limit: 500
     proc_root: /proc
     # 支持的协议分析
-    protocol_parser: [ http, mysql, dns, redis, kafka, dubbo ]
-    protocol_config:
-      - key: "http"
-        payload_length: 200
-      - key: "dubbo"
-        payload_length: 200
-      - key: "mysql"
-        slow_threshold: 100
-        disable_discern: false
-      - key: "kafka"
-        slow_threshold: 100
-      - key: "cassandra"
-        ports: [ 9042 ]
-        slow_threshold: 100
-      - key: "s3"
-        ports: [ 9190 ]
-        slow_threshold: 100
-      - key: "dns"
-        ports: [ 53 ]
-        slow_threshold: 100
+#    protocol_parser: [ http, mysql, dns, redis, kafka, dubbo ]
+#    protocol_config:
+#      - key: "http"
+#        payload_length: 200
+#      - key: "dubbo"
+#        payload_length: 200
+#      - key: "mysql"
+#        slow_threshold: 100
+#        disable_discern: false
+#      - key: "kafka"
+#        slow_threshold: 100
+#      - key: "cassandra"
+#        ports: [ 9042 ]
+#        slow_threshold: 100
+#      - key: "s3"
+#        ports: [ 9190 ]
+#        slow_threshold: 100
+#      - key: "dns"
+#        ports: [ 53 ]
+#        slow_threshold: 100
 
 processors:
   k8smetadataprocessor:

@@ -1,7 +1,6 @@
 package k8s
 
 import (
-	"collector/pkg/consumer/processor/k8s/watch"
 	"encoding/json"
 	"fmt"
 	"sync"
@@ -260,5 +259,5 @@ func (c *K8sMetaDataCache) String() string {
 
 // 根据ip获取node名称
 func (c *K8sMetaDataCache) GetNodeNameByIp(ip string) (string, bool) {
-	return watch.GlobalNodeInfo.GetNodeName(ip)
+	return GlobalNodeInfo.GetNodeName(ip)
 }

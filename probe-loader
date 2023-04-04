@@ -1,5 +1,6 @@
 #!/bin/sh
 
+# 加载bpf探测
 load_kernel_probe() {
 	if ! hash lsmod > /dev/null 2>&1; then
 		echo "This program requires lsmod"
@@ -58,6 +59,7 @@ load_kernel_probe() {
 	fi
 }
 
+# 加载bpf探测
 load_bpf_probe() {
 	echo "* Mounting debugfs"
 
@@ -98,7 +100,7 @@ ARCH=$(uname -m)
 KERNEL_RELEASE=$(uname -r)
 APPROXIMATE_KERNEL_VERSION=$(echo "$KERNEL_RELEASE" | awk -F. '{print $1"."$2"."$3"."$(NF-1)"."$NF}')
 SCRIPT_NAME=$(basename "${0}")
-PROBE_NAME="kindling-falcolib-probe"
+PROBE_NAME="falcolib-probe"
 MAX_RMMOD_WAIT=60
 
 tar -zxvf /app/kindling-falcolib-probe.tar.gz -C /opt

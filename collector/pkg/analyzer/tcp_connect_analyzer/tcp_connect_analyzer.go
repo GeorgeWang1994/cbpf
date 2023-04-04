@@ -26,7 +26,7 @@ type TcpConnectAnalyzer struct {
 	telemetry *component.TelemetryTools
 }
 
-func New(cfg interface{}, telemetry *component.TelemetryTools, consumers []consumer.Consumer) analyzer.Analyzer {
+func NewTcpConnectAnalyzer(cfg interface{}, telemetry *component.TelemetryTools, consumers []consumer.Consumer) analyzer.Analyzer {
 	config := cfg.(*Config)
 	ret := &TcpConnectAnalyzer{
 		config:         config,

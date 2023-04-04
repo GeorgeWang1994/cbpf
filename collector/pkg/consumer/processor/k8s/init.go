@@ -1,9 +1,8 @@
 package k8s
 
 import (
-	watch2 "collector/pkg/consumer/processor/k8s/watch"
 	"fmt"
-	k8s "k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"net"
@@ -45,7 +44,7 @@ func (c APIConfig) Validate() error {
 
 var (
 	MetaDataCache = NewCache()
-	KubeClient    *k8s.Clientset
+	KubeClient    *kubernetes.Clientset
 	once          sync.Once
 )
 
@@ -66,20 +65,20 @@ func InitK8sHandler(options ...Option) error {
 			retErr = fmt.Errorf("cannot connect to kubernetes: %w", err)
 			return
 		}
-		go watch2.NodeWatch(clientSet)
+		go NodeWatch(clientSet)
 		time.Sleep(1 * time.Second)
-		go watch2.RsWatch(clientSet)
+		go RsWatch(clientSet)
 		time.Sleep(1 * time.Second)
-		go watch2.ServiceWatch(clientSet)
+		go ServiceWatch(clientSet)
 		time.Sleep(1 * time.Second)
-		go watch2.PodWatch(clientSet, k8sConfig.GraceDeletePeriod)
+		go PodWatch(clientSet, k8sConfig.GraceDeletePeriod)
 		time.Sleep(1 * time.Second)
 		KubeClient = clientSet
 	})
 	return retErr
 }
 
-func initClientSet(authType string, dir string) (*k8s.Clientset, error) {
+func initClientSet(authType string, dir string) (*kubernetes.Clientset, error) {
 	return makeClient(APIConfig{
 		AuthType:     AuthType(authType),
 		AuthFilePath: dir,
@@ -87,7 +86,7 @@ func initClientSet(authType string, dir string) (*k8s.Clientset, error) {
 }
 
 // MakeClient can take configuration if needed for other types of auth
-func makeClient(apiConf APIConfig) (*k8s.Clientset, error) {
+func makeClient(apiConf APIConfig) (*kubernetes.Clientset, error) {
 	if err := apiConf.Validate(); err != nil {
 		return nil, err
 	}
@@ -97,7 +96,7 @@ func makeClient(apiConf APIConfig) (*k8s.Clientset, error) {
 		return nil, err
 	}
 
-	client, err := k8s.NewForConfig(authConf)
+	client, err := kubernetes.NewForConfig(authConf)
 	if err != nil {
 		return nil, err
 	}
